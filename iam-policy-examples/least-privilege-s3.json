@@ -1,0 +1,47 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListSpecificBucket",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": "arn:aws:s3:::company-dev-bucket",
+      "Condition": {
+        "StringLike": {"s3:prefix": ["dev-team/*"]}
+      }
+    },
+    {
+      "Sid": "ReadObjectsInBucket",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": "arn:aws:s3:::company-dev-bucket/dev-team/*"
+    },
+    {
+      "Sid": "WriteObjectsInBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::company-dev-bucket/dev-team/*"
+    },
+    {
+      "Sid": "DenyDeleteBucket",
+      "Effect": "Deny",
+      "Action": ["s3:DeleteBucket"],
+      "Resource": "arn:aws:s3:::company-dev-bucket"
+    },
+    {
+      "Sid": "RequireSSLOnly",
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::company-dev-bucket",
+        "arn:aws:s3:::company-dev-bucket/*"
+      ],
+      "Condition": {
+        "Bool": {"aws:SecureTransport": "false"}
+      }
+    }
+  ]
+}
