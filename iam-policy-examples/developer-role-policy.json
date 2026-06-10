@@ -1,0 +1,79 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowEC2DescribeActions",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*",
+        "ec2:List*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowS3DevBucketAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::company-dev-bucket",
+        "arn:aws:s3:::company-dev-bucket/*"
+      ]
+    },
+    {
+      "Sid": "AllowCloudWatchLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ],
+      "Resource": "arn:aws:logs:us-east-1:123456789012:log-group:/dev/*"
+    },
+    {
+      "Sid": "AllowSSMSessionManager",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:StartSession",
+        "ssm:TerminateSession",
+        "ssm:ResumeSession",
+        "ssm:DescribeSessions",
+        "ssm:GetConnectionStatus"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {"ssm:resourceTag/Environment": "dev"}
+      }
+    },
+    {
+      "Sid": "DenyProductionAccess",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {"aws:RequestedRegion": "eu-west-1"},
+        "ArnLike": {"aws:PrincipalArn": "arn:aws:iam::123456789012:role/DeveloperRole"}
+      }
+    },
+    {
+      "Sid": "RequireMFAForSensitiveActions",
+      "Effect": "Deny",
+      "Action": [
+        "iam:*",
+        "cloudtrail:StopLogging",
+        "cloudtrail:DeleteTrail",
+        "ec2:TerminateInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "BoolIfExists": {"aws:MultiFactorAuthPresent": "false"}
+      }
+    }
+  ]
+}
